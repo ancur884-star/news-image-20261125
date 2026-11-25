@@ -34,7 +34,7 @@
 //
 //   mkdir -p out && MAKEFUN_OUTPUT_DIR=out node main.ts
 
-import { copyFileSync, readFileSync, statSync } from "node:fs";
+import { copyFileSync, mkdirSync, readFileSync, statSync } from "node:fs";
 import { join } from "node:path";
 
 const outDir = process.env.MAKEFUN_OUTPUT_DIR ?? "/output";
@@ -65,5 +65,6 @@ if (iend.readUInt32BE(0) !== 0 || iend.toString("ascii", 4, 8) !== "IEND") {
   process.exit(1);
 }
 
+mkdirSync(outDir, { recursive: true });
 copyFileSync(source, join(outDir, "entry.png"));
 console.log(`entry.png copied: ${width}x${height}, ${size} bytes`);
