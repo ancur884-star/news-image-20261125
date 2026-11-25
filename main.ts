@@ -56,6 +56,14 @@ if (width > 1024 || height > 1024 || size > 1024 * 1024) {
   console.error(`entry.png is ${width}x${height}, ${size} bytes: over the 1024x1024 / 1 MiB gate`);
   process.exit(1);
 }
+// The gate also requires a whole image: a PNG must end with its IEND
+// chunk, so refuse a truncated file instead of handing the gate bytes
+// it would score 0.
+const iend = bytes.subarray(size - 12);
+if (iend.readUInt32BE(0) !== 0 || iend.toString("ascii", 4, 8) !== "IEND") {
+  console.error("entry.png is truncated: no IEND chunk at the end");
+  process.exit(1);
+}
 
 copyFileSync(source, join(outDir, "entry.png"));
 console.log(`entry.png copied: ${width}x${height}, ${size} bytes`);
